@@ -3,7 +3,8 @@ const express = require('express');
 const path = require('path')
 const aluno = require('./models/aluno')
 const matricula = require('./models/matricula')
-const turma = require('./models/turma')
+const turma = require('./models/turma');
+const professor = require('./models/professor');
 const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')))
@@ -16,6 +17,10 @@ app.get("/", (req, res) => {
 
 app.get("/aluno", (req, res) => {
     res.sendFile(__dirname + '/views/aluno.html');
+});
+
+app.get("/professor", (req, res) => {
+    res.sendFile(__dirname + '/views/professor.html');
 });
 
 app.get("/matricula", (req, res) => {
@@ -39,6 +44,23 @@ app.get("/listar-alunos", async (req, res) => {
             return res.status(400).json({
                 erro: true,
                 mensagem: 'erro: Aluno não cadastrado com sucesso'
+            })
+        })
+});
+
+app.get("/listar-professor", async (req, res) => {
+    await professor.findAll({
+        order:[['id', 'DESC']]
+    })
+    .then((professores) => {
+        return res.json({
+            erro: false,
+            dados: professores
+        })
+        }).catch(() => {
+            return res.status(400).json({
+                erro: true,
+                mensagem: 'erro: Professor não cadastrado com sucessoo'
             })
         })
 });
@@ -78,6 +100,20 @@ app.post("/cadastrar", async (req, res) => {
             })
         })
 });
+
+
+app.post("/cadastrar-professor", async (req, res) => {
+    await professor.create(req.body)
+    .then(() => {
+        return res.redirect('/professor')
+        }).catch(() => {
+            return res.status(400).json({
+                erro: true,
+                mensagem: 'erro: Professor não cadastrado com sucessoooo'
+            })
+        })
+});
+
 
 app.post("/cadastrar-matricula", async (req, res) => {
     var id = req.body.id_turma
